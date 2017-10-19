@@ -53,9 +53,11 @@ uniform sampler2D laTexture;
 in Attribs {
 	vec4 couleur;
 	vec3 normal;
+	vec3 spotDirection;
 	vec3 obsDirection;
 	vec3 faceNormal;
 	vec3 faceObsDirection;
+	vec4 gouraudIntensity;
 } AttribsIn;
 
 out vec4 FragColor;
@@ -65,9 +67,26 @@ float calculerSpot( in vec3 spotDir, in vec3 L )
 	return( 0.0 );
 }
 
-vec4 calculerReflexion( in vec3 L, in vec3 N, in vec3 O )
-{
-	return( vec4(0.0) );
+//vec4 calculerReflexion(in vec3 spotDirection, in vec3 normal, in vec3 obsDirection) {
+//}
+
+vec4 calculerIntensite(in vec3 spotDirection, in vec3 normal, in vec3 obsDirection) {
+	vec4 ambient = FrontMaterial.emission +
+		FrontMaterial.ambient * LightModel.ambient;
+
+	ambient += FrontMaterial.ambient * LightSource[0].ambient;
+
+	vec4 diffuse = FrontMaterial.diffuse *
+		LightSource[0].diffuse *
+		max(dot(spotDirection, normal), 0.0);
+
+	float reflectionFactor = max(0.0, dot(reflect(-spotDirection, normal), obsDirection));
+
+	vec4 specular = FrontMaterial.specular *
+		LightSource[0].specular *
+		pow(reflectionFactor, FrontMaterial.shininess);
+
+	return clamp(ambient + diffuse + specular, 0.0, 1.0);
 }
 
 void main( void )
@@ -83,34 +102,13 @@ void main( void )
 		obsDirection = normalize(AttribsIn.obsDirection);
 	}
 
-	vec3 spotDirection = normalize(LightSource[0].spotDirection);
-
-	vec4 ambient = FrontMaterial.emission +
-		FrontMaterial.ambient * LightModel.ambient;
-
-	ambient += FrontMaterial.ambient * LightSource[0].ambient;
-
-	vec4 diffuse = FrontMaterial.diffuse *
-		LightSource[0].diffuse *
-		max(dot(-spotDirection, normal), 0.0);
-
-	float reflectionFactor;
-
-	//if(typeIllumination == 0) {
-		//reflectionFactor = max(0.0, dot(normalize(spotDirection + obsDirection), normal));
-		reflectionFactor = max(0.0, dot(reflect(spotDirection, normal), obsDirection));
-	//}
-
-	vec4 specular = FrontMaterial.specular *
-		LightSource[0].specular *
-		pow(reflectionFactor, FrontMaterial.shininess);
-
 	if(afficheNormales) {
 		FragColor.rgb = 0.5 + 0.5 * normal;
 	} else {
-		FragColor = clamp(ambient + diffuse + specular, 0.0, 1.0);
+		if(typeIllumination == 1) {
+			FragColor = AttribsIn.gouraudIntensity;
+		} else {
+			FragColor = calculerIntensite(normalize(AttribsIn.spotDirection), normal, obsDirection);
+		}
 	}
-
-	//FragColor = AttribsIn.couleur;
-	//FragColor = vec4( 0.5, 0.5, 0.5, 1.0 ); // gris moche!
 }

@@ -61,12 +61,28 @@ layout(location=8) in vec4 TexCoord;
 out Attribs {
 	vec4 couleur;
 	vec3 normal;
+	vec3 spotDirection;
 	vec3 obsDirection;
+	vec4 gouraudIntensity;
 } AttribsOut;
 
-vec4 calculerReflexion( in vec3 L, in vec3 N, in vec3 O )
-{
-	return( vec4(0.0) );
+vec4 calculerIntensite(in vec3 spotDirection, in vec3 normal, in vec3 obsDirection) {
+	vec4 ambient = FrontMaterial.emission +
+		FrontMaterial.ambient * LightModel.ambient;
+
+	ambient += FrontMaterial.ambient * LightSource[0].ambient;
+
+	vec4 diffuse = FrontMaterial.diffuse *
+		LightSource[0].diffuse *
+		max(dot(spotDirection, normal), 0.0);
+
+	float reflectionFactor = max(0.0, dot(reflect(-spotDirection, normal), obsDirection));
+
+	vec4 specular = FrontMaterial.specular *
+		LightSource[0].specular *
+		pow(reflectionFactor, FrontMaterial.shininess);
+
+	return clamp(ambient + diffuse + specular, 0.0, 1.0);
 }
 
 void main( void )
@@ -84,4 +100,11 @@ void main( void )
 	} else {
 		AttribsOut.obsDirection = vec3(0.0, 0.0, 1.0);
 	}
+
+	AttribsOut.spotDirection = vec3(normalize(LightSource[0].position - gl_Position));
+
+	AttribsOut.gouraudIntensity =
+		calculerIntensite(AttribsOut.spotDirection,
+				normalize(AttribsOut.normal),
+				AttribsOut.obsDirection);
 }

@@ -23,15 +23,19 @@ layout (std140) uniform varsUnif
 in Attribs {
 	vec4 couleur;
 	vec3 normal;
+	vec3 spotDirection;
 	vec3 obsDirection;
+	vec4 gouraudIntensity;
 } AttribsIn[];
 
 out Attribs {
 	vec4 couleur;
 	vec3 normal;
+	vec3 spotDirection;
 	vec3 obsDirection;
 	vec3 faceNormal;
 	vec3 faceObsDirection;
+	vec4 gouraudIntensity;
 } AttribsOut;
 
 void main()
@@ -53,6 +57,9 @@ void main()
 		AttribsOut.couleur = AttribsIn[i].couleur;
 		AttribsOut.normal = AttribsIn[i].normal;
 		AttribsOut.obsDirection = AttribsIn[i].obsDirection;
+
+		AttribsOut.spotDirection = AttribsIn[i].spotDirection;
+		AttribsOut.gouraudIntensity = AttribsIn[i].gouraudIntensity;
 
 		AttribsOut.faceNormal = meanNormal;
 		AttribsOut.faceObsDirection = meanObsDirection;
