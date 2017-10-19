@@ -66,14 +66,16 @@ float calculerSpot( in vec3 spotDir, in vec3 L )
 {
 	spotDir = normalize(spotDir);
 	L = normalize(L);
+	float cosGamma = dot(spotDir, -L),
+	      innerCos = cos(LightSource[0].spotCutoff * 3.14159265/180.0);
 
 	if(utiliseDirect) {
 		// Spot Direct3D
-		return 1.0;
+		float outerCos = pow(innerCos, 1.01 + LightSource[0].spotExponent / 2);
+		return smoothstep(outerCos, innerCos, cosGamma);
 	} else {
 		// Spot OpenGL
-		float cosGamma = dot(spotDir, -L);
-		if(cosGamma >= cos(LightSource[0].spotCutoff * 3.14159265/180)) {
+		if(cosGamma >= innerCos) {
 			return pow(cosGamma, LightSource[0].spotExponent);
 		}
 	}
