@@ -80,7 +80,12 @@ vec4 calculerIntensite(in vec3 spotDirection, in vec3 normal, in vec3 obsDirecti
 		LightSource[0].diffuse *
 		max(dot(spotDirection, normal), 0.0);
 
-	float reflectionFactor = max(0.0, dot(reflect(-spotDirection, normal), obsDirection));
+	float reflectionFactor;
+	if(utiliseBlinn) {
+		reflectionFactor = max(0.0, dot(normalize(spotDirection + obsDirection), normal));
+	} else {
+		reflectionFactor = max(0.0, dot(reflect(-spotDirection, normal), obsDirection));
+	}
 
 	vec4 specular = FrontMaterial.specular *
 		LightSource[0].specular *
