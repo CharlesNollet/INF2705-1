@@ -61,12 +61,12 @@ layout(location=8) in vec4 TexCoord;
 out Attribs {
 	vec4 couleur;
 	vec3 normal;
-	vec3 spotDirection;
+	vec3 lightDirection;
 	vec3 obsDirection;
 	vec4 gouraudIntensity;
 } AttribsOut;
 
-vec4 calculerIntensite(in vec3 spotDirection, in vec3 normal, in vec3 obsDirection) {
+vec4 calculerIntensite(in vec3 lightDirection, in vec3 normal, in vec3 obsDirection) {
 	vec4 ambient = FrontMaterial.emission +
 		FrontMaterial.ambient * LightModel.ambient;
 
@@ -74,13 +74,13 @@ vec4 calculerIntensite(in vec3 spotDirection, in vec3 normal, in vec3 obsDirecti
 
 	vec4 diffuse = FrontMaterial.diffuse *
 		LightSource[0].diffuse *
-		max(dot(spotDirection, normal), 0.0);
+		max(dot(lightDirection, normal), 0.0);
 
 	float reflectionFactor;
 	if(utiliseBlinn) {
-		reflectionFactor = max(0.0, dot(normalize(spotDirection + obsDirection), normal));
+		reflectionFactor = max(0.0, dot(normalize(lightDirection + obsDirection), normal));
 	} else {
-		reflectionFactor = max(0.0, dot(reflect(-spotDirection, normal), obsDirection));
+		reflectionFactor = max(0.0, dot(reflect(-lightDirection, normal), obsDirection));
 	}
 
 	vec4 specular = FrontMaterial.specular *
@@ -93,7 +93,7 @@ vec4 calculerIntensite(in vec3 spotDirection, in vec3 normal, in vec3 obsDirecti
 void main( void )
 {
 	// transformation standard du sommet
-	gl_Position = matrProj * matrVisu * matrModel * Vertex;
+	gl_Position = matrVisu * matrModel * Vertex;
 
 	// couleur du sommet
 	AttribsOut.couleur = Color;
@@ -106,10 +106,10 @@ void main( void )
 		AttribsOut.obsDirection = vec3(0.0, 0.0, 1.0);
 	}
 
-	AttribsOut.spotDirection = vec3(normalize(LightSource[0].position - gl_Position));
+	AttribsOut.lightDirection = vec3(normalize(LightSource[0].position - gl_Position));
 
 	AttribsOut.gouraudIntensity =
-		calculerIntensite(AttribsOut.spotDirection,
+		calculerIntensite(AttribsOut.lightDirection,
 				normalize(AttribsOut.normal),
 				AttribsOut.obsDirection);
 }

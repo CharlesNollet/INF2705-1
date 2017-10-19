@@ -23,7 +23,7 @@ layout (std140) uniform varsUnif
 in Attribs {
 	vec4 couleur;
 	vec3 normal;
-	vec3 spotDirection;
+	vec3 lightDirection;
 	vec3 obsDirection;
 	vec4 gouraudIntensity;
 } AttribsIn[];
@@ -31,7 +31,7 @@ in Attribs {
 out Attribs {
 	vec4 couleur;
 	vec3 normal;
-	vec3 spotDirection;
+	vec3 lightDirection;
 	vec3 obsDirection;
 	vec3 faceNormal;
 	vec3 faceObsDirection;
@@ -42,26 +42,28 @@ void main()
 {
 	vec3 sumNormal = vec3(0.0), sumObsDirection = vec3(0.0);
 
+	vec3 v1 = vec3(gl_in[1].gl_Position - gl_in[0].gl_Position),
+	     v2 = vec3(gl_in[2].gl_Position - gl_in[0].gl_Position),
+	     normal = normalize(cross(v1, v2));
+
 	for(int i = 0; i < gl_in.length(); ++i) {
-		sumNormal += AttribsIn[i].normal;
 		sumObsDirection += AttribsIn[i].obsDirection;
 	}
-	vec3 meanNormal = sumNormal / gl_in.length(),
-		 meanObsDirection = sumObsDirection / gl_in.length();
+	 vec3 meanObsDirection = sumObsDirection / gl_in.length();
 
 	// émettre les sommets
 	for ( int i = 0 ; i < gl_in.length() ; ++i )
 	{
-		gl_Position = gl_in[i].gl_Position;
+		gl_Position = matrProj * gl_in[i].gl_Position;
 
 		AttribsOut.couleur = AttribsIn[i].couleur;
 		AttribsOut.normal = AttribsIn[i].normal;
 		AttribsOut.obsDirection = AttribsIn[i].obsDirection;
 
-		AttribsOut.spotDirection = AttribsIn[i].spotDirection;
+		AttribsOut.lightDirection = AttribsIn[i].lightDirection;
 		AttribsOut.gouraudIntensity = AttribsIn[i].gouraudIntensity;
 
-		AttribsOut.faceNormal = meanNormal;
+		AttribsOut.faceNormal = normal;
 		AttribsOut.faceObsDirection = meanObsDirection;
 
 		EmitVertex();

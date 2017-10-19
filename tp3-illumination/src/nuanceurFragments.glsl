@@ -53,7 +53,7 @@ uniform sampler2D laTexture;
 in Attribs {
 	vec4 couleur;
 	vec3 normal;
-	vec3 spotDirection;
+	vec3 lightDirection;
 	vec3 obsDirection;
 	vec3 faceNormal;
 	vec3 faceObsDirection;
@@ -64,13 +64,22 @@ out vec4 FragColor;
 
 float calculerSpot( in vec3 spotDir, in vec3 L )
 {
-	return( 0.0 );
+	spotDir = normalize(spotDir);
+	L = normalize(L);
+
+	if(utiliseDirect) {
+		// Spot Direct3D
+		return 1.0;
+	} else {
+		// Spot OpenGL
+		float cosGamma = dot(spotDir, -L);
+		if(cosGamma >= cos(LightSource[0].spotCutoff * 3.14159265/180)) {
+			return pow(cosGamma, LightSource[0].spotExponent);
+		}
+	}
 }
 
-//vec4 calculerReflexion(in vec3 spotDirection, in vec3 normal, in vec3 obsDirection) {
-//}
-
-vec4 calculerIntensite(in vec3 spotDirection, in vec3 normal, in vec3 obsDirection) {
+vec4 calculerIntensite(in vec3 lightDirection, in vec3 normal, in vec3 obsDirection) {
 	vec4 ambient = FrontMaterial.emission +
 		FrontMaterial.ambient * LightModel.ambient;
 
@@ -78,13 +87,13 @@ vec4 calculerIntensite(in vec3 spotDirection, in vec3 normal, in vec3 obsDirecti
 
 	vec4 diffuse = FrontMaterial.diffuse *
 		LightSource[0].diffuse *
-		max(dot(spotDirection, normal), 0.0);
+		max(dot(lightDirection, normal), 0.0);
 
 	float reflectionFactor;
 	if(utiliseBlinn) {
-		reflectionFactor = max(0.0, dot(normalize(spotDirection + obsDirection), normal));
+		reflectionFactor = max(0.0, dot(normalize(lightDirection + obsDirection), normal));
 	} else {
-		reflectionFactor = max(0.0, dot(reflect(-spotDirection, normal), obsDirection));
+		reflectionFactor = max(0.0, dot(reflect(-lightDirection, normal), obsDirection));
 	}
 
 	vec4 specular = FrontMaterial.specular *
@@ -113,7 +122,9 @@ void main( void )
 		if(typeIllumination == 1) {
 			FragColor = AttribsIn.gouraudIntensity;
 		} else {
-			FragColor = calculerIntensite(normalize(AttribsIn.spotDirection), normal, obsDirection);
+			FragColor = calculerIntensite(normalize(AttribsIn.lightDirection), normal, obsDirection);
 		}
+
+		FragColor *= calculerSpot(LightSource[0].spotDirection, AttribsIn.lightDirection);
 	}
 }
