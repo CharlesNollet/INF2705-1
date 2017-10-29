@@ -64,6 +64,7 @@ out Attribs {
 	vec3 lightDirection;
 	vec3 obsDirection;
 	vec4 gouraudIntensity;
+	vec2 texCoord;
 } AttribsOut;
 
 vec4 calculerIntensite(in vec3 lightDirection, in vec3 normal, in vec3 obsDirection) {
@@ -112,4 +113,6 @@ void main( void )
 		calculerIntensite(AttribsOut.lightDirection,
 				normalize(AttribsOut.normal),
 				AttribsOut.obsDirection);
+
+	AttribsOut.texCoord = TexCoord.st;
 }

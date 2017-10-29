@@ -26,6 +26,7 @@ in Attribs {
 	vec3 lightDirection;
 	vec3 obsDirection;
 	vec4 gouraudIntensity;
+	vec2 texCoord;
 } AttribsIn[];
 
 out Attribs {
@@ -36,6 +37,7 @@ out Attribs {
 	vec3 faceNormal;
 	vec3 faceObsDirection;
 	vec4 gouraudIntensity;
+	vec2 texCoord;
 } AttribsOut;
 
 void main()
@@ -65,6 +67,8 @@ void main()
 
 		AttribsOut.faceNormal = normal;
 		AttribsOut.faceObsDirection = meanObsDirection;
+
+		AttribsOut.texCoord = AttribsIn[i].texCoord;
 
 		EmitVertex();
 	}

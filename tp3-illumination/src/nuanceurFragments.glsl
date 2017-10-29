@@ -58,6 +58,7 @@ in Attribs {
 	vec3 faceNormal;
 	vec3 faceObsDirection;
 	vec4 gouraudIntensity;
+	vec2 texCoord;
 } AttribsIn;
 
 out vec4 FragColor;
@@ -110,6 +111,8 @@ void main( void )
 	vec3 normal;
 	vec3 obsDirection;
 
+	vec4 tex = texture(laTexture, AttribsIn.texCoord);
+
 	if(typeIllumination == 0) {
 		normal = normalize(AttribsIn.faceNormal);
 		obsDirection = normalize(AttribsIn.faceObsDirection);
@@ -118,15 +121,33 @@ void main( void )
 		obsDirection = normalize(AttribsIn.obsDirection);
 	}
 
-	if(afficheNormales) {
-		FragColor.rgb = 0.5 + 0.5 * normal;
-	} else {
 		if(typeIllumination == 1) {
 			FragColor = AttribsIn.gouraudIntensity;
 		} else {
 			FragColor = calculerIntensite(normalize(AttribsIn.lightDirection), normal, obsDirection);
 		}
 
-		FragColor *= calculerSpot(LightSource[0].spotDirection, AttribsIn.lightDirection);
+	FragColor.a = 1;
+
+	if(texnumero != 0) {
+
+		float luma = (tex.r + tex.g + tex.b) / 3.0;
+
+		if(afficheTexelNoir == 1) {
+
+			FragColor *= (1 + tex) / 2;
+
+		} else if(afficheTexelNoir == 2 && luma < 0.1) {
+			discard;
+		} else {
+			FragColor *= tex;
+		}
+
+	}
+
+	if(afficheNormales) {
+		FragColor.rgb = 0.5 + 0.5 * normal;
+	} else {
+		FragColor.rgb *= calculerSpot(LightSource[0].spotDirection, AttribsIn.lightDirection);
 	}
 }

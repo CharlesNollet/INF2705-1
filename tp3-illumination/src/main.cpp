@@ -31,6 +31,8 @@ GLuint vao[2];
 GLuint vbo[5];
 GLuint ubo[4];
 
+GLuint cubeTexCoords[2];
+
 // matrices de du pipeline graphique
 MatricePipeline matrModel;
 MatricePipeline matrVisu;
@@ -398,6 +400,24 @@ void initialiser() {
 	        0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0   // Face devant
 	};
 
+	GLfloat texCoord1[2 * 4 * 6] = {
+		0.999, 0.000, 0.999, 0.333, 0.666, 0.000, 0.666, 0.333, // Face arrière (6)
+		0.999, 0.666, 0.999, 0.333, 0.666, 0.666, 0.666, 0.333, // Face dessous (5)
+		0.666, 0.999, 0.666, 0.666, 0.333, 0.999, 0.333, 0.666, // Face droite (4)
+		0.666, 0.333, 0.666, 0.000, 0.333, 0.333, 0.333, 0.000, // Face dessus (3)
+		0.333, 0.666, 0.333, 0.333, 0.000, 0.666, 0.000, 0.333, // Face gauche (2)
+		0.666, 0.666, 0.666, 0.333, 0.333, 0.666, 0.333, 0.333, // Face devant (1)
+	};
+
+	GLfloat texCoord2[2 * 4 * 6] = {
+		0.0, 0.0, 3.0, 0.0, 0.0, 3.0, 3.0, 3.0, // Face arrière
+		0.0, 0.0, 3.0, 0.0, 0.0, 3.0, 3.0, 3.0, // Face dessous
+		0.0, 0.0, 3.0, 0.0, 0.0, 3.0, 3.0, 3.0, // Face droite
+		0.0, 0.0, 3.0, 0.0, 0.0, 3.0, 3.0, 3.0, // Face dessus
+		0.0, 0.0, 3.0, 0.0, 0.0, 3.0, 3.0, 3.0, // Face gauche
+		0.0, 0.0, 3.0, 0.0, 0.0, 3.0, 3.0, 3.0, // Face devant
+	};
+
 	// allouer les objets OpenGL
 	glGenVertexArrays(2, vao);
 	glGenBuffers(5, vbo);
@@ -414,10 +434,17 @@ void initialiser() {
 	glBufferData(GL_ARRAY_BUFFER, sizeof(normales), normales, GL_STATIC_DRAW);
 	glVertexAttribPointer(locNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(locNormal);
-	// (partie 3) charger le VBO pour les coordonnées de texture
-	// ...
 
-	glBindVertexArray(0);
+	// (partie 3) charger le VBO pour les coordonnées de texture
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(texCoord1), texCoord1, GL_STATIC_DRAW);
+	glVertexAttribPointer(locTexCoord, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(locTexCoord);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[3]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(texCoord2), texCoord2, GL_STATIC_DRAW);
+	glVertexAttribPointer(locTexCoord, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(locTexCoord);
 
 	// initialiser le VAO pour une ligne (montrant la direction du spot)
 	glBindVertexArray(vao[1]);
@@ -451,16 +478,23 @@ void conclure() {
 }
 
 void afficherModele() {
+
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	// partie 3: paramètres de texture
 	switch(varsUnif.texnumero) {
 		default:
 			// std::cout << "Sans texture" << std::endl;
+			glBindTexture(GL_TEXTURE_2D, 0);
 			break;
 		case 1:
 			// std::cout << "Texture DE" << std::endl;
+			glBindTexture(GL_TEXTURE_2D, textureDE);
 			break;
 		case 2:
 			// std::cout << "Texture ECHIQUIER" << std::endl;
+			glBindTexture(GL_TEXTURE_2D, textureECHIQUIER);
 			break;
 	}
 
@@ -488,6 +522,12 @@ void afficherModele() {
 			case 1:
 				// afficher le cube
 				glBindVertexArray(vao[0]);
+
+				if(varsUnif.texnumero > 0) {
+					glBindBuffer(GL_ARRAY_BUFFER, vbo[varsUnif.texnumero + 1]);
+					glVertexAttribPointer(locTexCoord, 2, GL_FLOAT, GL_FALSE, 0, 0);
+				}
+
 				glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 				glDrawArrays(GL_TRIANGLE_STRIP, 4, 4);
 				glDrawArrays(GL_TRIANGLE_STRIP, 8, 4);
