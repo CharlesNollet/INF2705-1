@@ -97,13 +97,16 @@ void verifierAngles() {
 
 // s'assurer que le puits n'a pas été déplacé en dehors des limites de la demi-sphère
 void verifierPositionPuits() {
-	const float deplLimite = 0.9; // on ne veut pas aller trop près de la paroi
+	// on ne veut pas aller trop près de la paroi
+	const float deplLimite = 0.9;
 	float dist             = glm::length(glm::vec3(
             positionPuits.x / bDim.x, positionPuits.y / bDim.y, positionPuits.z / bDim.z));
-	if(dist >= deplLimite) // on réassigne une nouvelle position
+	// on réassigne une nouvelle position
+	if(dist >= deplLimite) {
 		positionPuits =
 		        deplLimite *
 		        glm::vec3(positionPuits.x / dist, positionPuits.y / dist, positionPuits.z / dist);
+	}
 }
 
 // Valeur aléatoire entre 0.0 et 1.0
@@ -115,7 +118,48 @@ void calculerPhysique() {
 	if(enmouvement) {
 		// À MODIFIER (partie 1)
 		// déplacer en utilisant le nuanceur de rétroaction
-		// ...
+		glUseProgram(progRetroaction);
+		glUniform3fv(locbDimRetroaction, 1, glm::value_ptr(bDim));
+		glUniform3fv(locpositionPuitsRetroaction, 1, glm::value_ptr(positionPuits));
+		glUniform1f(loctempsRetroaction, temps);
+		glUniform1f(locdtRetroaction, dt);
+		glUniform1f(loctempsMaxRetroaction, tempsMax);
+		glUniform1f(locgraviteRetroaction, gravite);
+
+		glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, vbo[1]);
+
+		glVertexAttribPointer(locpositionRetroaction,
+		                      3,
+		                      GL_FLOAT,
+		                      GL_FALSE,
+		                      sizeof(Part),
+		                      reinterpret_cast<void*>(offsetof(Part, position)));
+		glVertexAttribPointer(locvitesseRetroaction,
+		                      3,
+		                      GL_FLOAT,
+		                      GL_FALSE,
+		                      sizeof(Part),
+		                      reinterpret_cast<void*>(offsetof(Part, vitesse)));
+		glVertexAttribPointer(loccouleurRetroaction,
+		                      4,
+		                      GL_FLOAT,
+		                      GL_FALSE,
+		                      sizeof(Part),
+		                      reinterpret_cast<void*>(offsetof(Part, couleur)));
+		glVertexAttribPointer(loctempsRestantRetroaction,
+		                      1,
+		                      GL_FLOAT,
+		                      GL_FALSE,
+		                      sizeof(Part),
+		                      reinterpret_cast<void*>(offsetof(Part, tempsRestant)));
+
+		glEnable(GL_RASTERIZER_DISCARD);
+		glBeginTransformFeedback(GL_QUADS);
+
+		glDrawArrays(GL_TRIANGLES, 0, sizeof(part)/sizeof(Part));
+
+		glEndTransformFeedback();
+		glDisable(GL_RASTERIZER_DISCARD);
 
 		// échanger les deux VBO
 		std::swap(vbo[0], vbo[1]);
@@ -281,9 +325,9 @@ void chargerNuanceurs() {
 		}
 
 		// À MODIFIER (partie 1)
-		// const GLchar* vars[] = { ... };
-		// glTransformFeedbackVaryings( progRetroaction, sizeof(vars)/sizeof(vars[0]), vars,
-		// GL_INTERLEAVED_ATTRIBS );
+		const GLchar* vars[] = {"positionMod", "vitesseMod", "couleurMod", "tempsRestantMod"};
+		glTransformFeedbackVaryings(
+		        progRetroaction, sizeof(vars) / sizeof(vars[0]), vars, GL_INTERLEAVED_ATTRIBS);
 
 		// faire l'édition des liens du programme
 		glLinkProgram(progRetroaction);

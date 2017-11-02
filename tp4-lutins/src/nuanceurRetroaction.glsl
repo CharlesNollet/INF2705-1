@@ -13,23 +13,23 @@ out vec3 vitesseMod;
 out vec4 couleurMod;
 out float tempsRestantMod;
 
-uint randhash( uint seed ) // entre  0 et UINT_MAX
-{
+// entre  0 et UINT_MAX
+uint randhash(uint seed) {
 	uint i=(seed^12345391u)*2654435769u;
 	i ^= (i<<6u)^(i>>26u);
 	i *= 2654435769u;
 	i += (i<<5u)^(i>>12u);
 	return i;
 }
-float myrandom( uint seed ) // entre  0 et 1
-{
+
+// entre  0 et 1
+float myrandom(uint seed) {
 	const float UINT_MAX = 4294967295.0;
 	return float(randhash(seed)) / UINT_MAX;
 }
 
-void main( void )
-{
-	if ( tempsRestant <= 0.0 )
+void main( void ) {
+	if (tempsRestant <= 0.0)
 	{
 		// se préparer à produire une valeur un peu aléatoire
 		uint seed = uint(temps * 1000.0) + uint(gl_VertexID);
@@ -43,7 +43,7 @@ void main( void )
 		const float COULMAX = 0.9; // valeur maximale d'une composante de couleur lorsque la particule (re)naît
 
 		// nouveau temps de vie
-		//tempsRestantMod = ...; // entre 0 et tempsMax secondes
+		tempsRestantMod = myrandom(seed++) * tempsMax; // entre 0 et tempsMax secondes
 
 		// interpolation linéaire entre COULMIN et COULMAX
 		//couleurMod = ...
