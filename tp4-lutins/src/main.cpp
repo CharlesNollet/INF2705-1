@@ -34,6 +34,7 @@ GLint locColorBase     = -1;
 GLint locmatrModelBase = -1;
 GLint locmatrVisuBase  = -1;
 GLint locmatrProjBase  = -1;
+GLint locpointSize = -1;
 
 GLuint vao[2];
 GLuint vbo[2];
@@ -62,6 +63,7 @@ int texnumero = 1; // numéro de la texture utilisée: 0-aucune, 1-étincelle, 2
 GLuint textureETINCELLE = 0;
 GLuint textureOISEAU    = 0;
 GLuint textureBONHOMME  = 0;
+GLint pointSize = 10;
 
 const unsigned int MAXNPARTICULES = 1000000;
 struct Part {
@@ -311,6 +313,8 @@ void chargerNuanceurs() {
             std::cerr << "!!! pas trouvé la \"Location\" de laTexture" << std::endl;
         if((loctexnumero = glGetUniformLocation(prog, "texnumero")) == -1)
             std::cerr << "!!! pas trouvé la \"Location\" de texnumero" << std::endl;
+        if((locpointSize = glGetUniformLocation(prog, "pointSize")) == -1)
+            std::cerr << "!!! pas trouvé la \"Location\" de pointSize" << std::endl;
     }
 
     // charger le nuanceur de rétroaction
@@ -565,7 +569,7 @@ void FenetreTP::afficherScene() {
     glUniformMatrix4fv(locmatrModel, 1, GL_FALSE, matrModel);
     glUniform1i(loclaTexture, 0); // '0' => utilisation de GL_TEXTURE0
     glUniform1i(loctexnumero, texnumero);
-
+    glUniform1i(locpointSize, pointSize); // Taille des points dans le nuanceur de géometrie
     glBindVertexArray(vao[0]);
     // refaire le lien avec les attributs du nuanceur de sommets pour le vbo actuellement utilisé
     glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
