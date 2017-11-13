@@ -4,16 +4,18 @@ uniform sampler2D laTexture;
 
 in Attribs {
    vec4 couleur;
+   vec2 texCoord;
 } AttribsIn;
 
 out vec4 FragColor;
 
 void main( void )
 {
-   // Mettre un test bidon afin que l'optimisation du compilateur n'élimine l'attribut "couleur".
-   // Vous MODIFIEREZ ce test inutile!
-   if ( AttribsIn.couleur.r < 0.0 ) discard;
-
-   //FragColor = texture( laTexture, gl_PointCoord );
-   FragColor = AttribsIn.couleur;
+    // Mettre un test bidon afin que l'optimisation du compilateur n'élimine l'attribut "couleur".
+    // Vous MODIFIEREZ ce test inutile!
+    //if ( AttribsIn.couleur.r < 0.0 ) discard;
+    vec4 texel = texture(laTexture, AttribsIn.texCoord);
+    if(texel.a < 0.1) discard;
+    //FragColor = texture( laTexture, gl_PointCoord );
+    FragColor = mix(AttribsIn.couleur, texel, 0.7);
 }
