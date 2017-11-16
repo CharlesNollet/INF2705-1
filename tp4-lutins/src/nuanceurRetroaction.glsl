@@ -46,7 +46,11 @@ void main( void ) {
         tempsRestantMod = myrandom(seed++) * tempsMax; // entre 0 et tempsMax secondes
 
         // interpolation linéaire entre COULMIN et COULMAX
-        couleurMod = vec4(COULMIN + (COULMAX - COULMIN)*myrandom(seed++),COULMIN + (COULMAX - COULMIN)*myrandom(seed++),COULMIN + (COULMAX - COULMIN)*myrandom(seed++), 1);
+        couleurMod = vec4(
+				COULMIN + (COULMAX - COULMIN) * myrandom(seed++),
+				COULMIN + (COULMAX - COULMIN) * myrandom(seed++),
+				COULMIN + (COULMAX - COULMIN) * myrandom(seed++),
+				1);
     }
     else
     {
@@ -61,10 +65,14 @@ void main( void ) {
         couleurMod = couleur;
 
         // collision avec la demi-sphère ?
-        vec3 descaledPos = vec3(position.x/bDim.x, position.y/bDim.y, position.z/bDim.z);
+        vec3 descaledPos = vec3(
+				position.x / bDim.x,
+				position.y / bDim.y,
+				position.z / bDim.z);
         if(length(descaledPos)>=1)
         {
             vitesseMod = reflect(vitesseMod, -normalize(position));
+            couleurMod.a *= 0.5;
         }
         // collision avec le sol ?
         if(position.z<0)
@@ -73,8 +81,8 @@ void main( void ) {
         }
 
         // appliquer la gravité
-        vitesseMod += vec3(0,0,-dt*gravite);
+        vitesseMod += vec3(0,0,-dt * gravite);
 
-        positionMod += vitesseMod*dt; 
+        positionMod += vitesseMod * dt;
     }
 }

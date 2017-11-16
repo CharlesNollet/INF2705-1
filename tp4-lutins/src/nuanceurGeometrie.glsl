@@ -10,7 +10,7 @@ uniform int texnumero;
 in Attribs {
 	vec4 couleur;
 	float tempsRestant;
-	//float sens; // du vol
+	float sens; // du vol
 } AttribsIn[];
 
 out Attribs {
@@ -18,8 +18,7 @@ out Attribs {
 	vec2 texCoord;
 } AttribsOut;
 
-void main()
-{
+void main(void) {
 	vec2 coins[4];
 	coins[0] = vec2(-0.5,  0.5);
 	coins[1] = vec2(-0.5, -0.5);
@@ -27,6 +26,13 @@ void main()
 	coins[3] = vec2( 0.5, -0.5);
 	mat2 matrRotation = mat2(1.0, 0.0,
 	                         0.0, 1.0);
+	mat2 matrSym = mat2(1.0, 0.0,
+	                    0.0, 1.0);
+
+	if(AttribsIn[0].sens < 0.0) {
+		matrSym = mat2(-1.0, 0.0,
+		                0.0, 1.0);
+	}
 
 	if(texnumero == 1) {
 		float theta = 6.0*AttribsIn[0].tempsRestant ;
@@ -37,13 +43,14 @@ void main()
 	for(int i = 0 ; i < 4 ; ++i) {
 		float fact = 0.01 * pointSize;
 		// on positionne successivement aux quatre coins
-		vec2 decalage = matrRotation * (fact * coins[i]);
+		vec2 decalage = matrRotation * matrSym * (fact * coins[i]);
 		vec4 pos = vec4(gl_in[0].gl_Position.xy + decalage, gl_in[0].gl_Position.zw);
 
 		// on termine la transformation débutée dans le nuanceur de sommets
 		gl_Position = matrProj * pos;
 		AttribsOut.couleur = AttribsIn[0].couleur;
-		// on utilise coins[] pour dÃ©finir des coordonnées de texture
+
+		// on utilise coins[] pour définir des coordonnées de texture
 		AttribsOut.texCoord = coins[i] + vec2( 0.5, 0.5 );
 
 		switch(texnumero) {

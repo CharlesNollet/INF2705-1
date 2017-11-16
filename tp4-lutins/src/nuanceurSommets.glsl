@@ -7,15 +7,15 @@ uniform mat4 matrProj;
 layout(location=0) in vec4 Vertex;
 layout(location=3) in vec4 Color;
 in float tempsRestant;
+in vec4 vitesse;
 
 out Attribs {
    vec4 couleur;
    float tempsRestant;
-   //float sens; // du vol
+   float sens; // du vol
 } AttribsOut;
 
-void main( void )
-{
+void main(void) {
    // transformation standard du sommet
    // gl_Position = matrProj * matrVisu * matrModel * Vertex;
    gl_Position =  matrVisu * matrModel * Vertex;
@@ -24,7 +24,5 @@ void main( void )
 
    // couleur du sommet
    AttribsOut.couleur = Color;
-
-   // À SUPPRIMER: la ligne suivante sert seulement à forcer le compilateur à conserver cet attribut
-   if ( tempsRestant < 0.0 ) AttribsOut.couleur.a += 0.00001;
+   AttribsOut.sens = sign((matrVisu * matrModel * vitesse).x);
 }
