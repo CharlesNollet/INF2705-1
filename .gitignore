@@ -1,4 +1,6 @@
 *~
+*.vcxproj
+*.vcxproj.filters
 
 # Created by https://www.gitignore.io/api/c++,vim,visualstudio
 
