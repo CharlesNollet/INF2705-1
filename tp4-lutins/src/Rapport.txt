@@ -3,12 +3,24 @@ Indice: pour bien répondre à ces deux questions, essayez de voir si votre rép
 
 Q1: Dans la partie 1, des points de taille fixe sont affichés à l'écran. Leur taille est donnée par la variable gl_PointSize.
     i) Comment faire pour que la taille d'un point varie de façon inverse à sa distance du plan avant du volume de visualisation ?
-    ii) Donnez l'énoncé GLSL que vous utiliseriez pour implanter ceci.
+        En coordonnées de projection normalisés, on a zNear = -1 et zFar= 1; on va donc aller modifier
+        le gl_PointSize dans le nuancuer de sommets pour qu'il soit inversement proportionnel à la composante en Z
+        du sommet en coordonnées normalisés (donc après application de la matrice de projection).
+        Biensur cela s'applique uniquement si cette composante en Z est entre -1 et 1, on utilise donc un clamp.
 
+    ii) Donnez l'énoncé GLSL que vous utiliseriez pour implanter ceci.
+        float depth = (MatrProj * MatrVisu * MatrModel * Vertex).z
+        depth = clamp(depth, -1.0, 1.0)
+        gl_PointSize = abs(10.0/(1.1 + depth))
 
 
 Q2: Pour afficher une étincelle qui tourne sur elle-même, on a appliqué une matrice de rotation sur les quatre sommets.
     i) Pourrait-on faire tourner l'étincelle en appliquant la même matrice de rotation sur les coordonnées de texture plutôt que sur les coordonnées des sommets?
+        Dans le cas particulier de l'étincelle, oui parceque c'est un disque inscrit dans un carré.
+        L'image est donc toujours dans le volume de 'decoupage' du cadre de la texture tant qu'on ne fait que des rotations.
+        On risque d'avoir des problemes pour gérer le dépassement des bords de l'image quand on applique cette rotations
+    
     ii) Quel problème observerions-nous alors et comment devrait-il être corrigé?
+        On observerait la texture qui "wrap" sur elle-même. Pour y remédier, il faut rogner tout ce qui dépasse de l'image.
+        Il faut alors utiliser un glTexParameterf avec GL_CLAMP_TO_EDGE en GL_TEXTURE_WRAP_S et GL_TEXTURE_WRAP_T
 
-    Afin de facilement répondre à cette question, vous pouvez remplacer (temporairement!) l'image de l'étincelle de ce TP par l'image de l'échiquier du TP3.  Si vous appliquez ensuite la matrice de rotation sur les coordonnées de texture plutôt que sur les coordonnées des sommets, vous pourrez alors très bien voir ce qui se passe.

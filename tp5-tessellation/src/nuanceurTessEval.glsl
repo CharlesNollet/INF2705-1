@@ -157,7 +157,7 @@ void main(void) {
 		 upepsv = vec2(gl_TessCoord.x + eps, gl_TessCoord.y),
 		 uvneps = vec2(gl_TessCoord.x, gl_TessCoord.y - eps),
 		 unepsv = vec2(gl_TessCoord.x - eps, gl_TessCoord.y);
-	vec3 N = cross(FctParam(uvpeps) - FctParam(uvneps), FctParam(upepsv) - FctParam(unepsv));
+	vec3 N = -cross(FctParam(uvpeps) - FctParam(uvneps), FctParam(upepsv) - FctParam(unepsv));
 
 #else
 
