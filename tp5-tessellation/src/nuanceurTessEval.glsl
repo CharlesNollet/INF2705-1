@@ -78,42 +78,44 @@ vec3 FctParam( vec2 uv )
 {
    const float PI = 3.141592654;
    vec3 p = vec3(0);
-#if ( INDICEFONCTION == 1 )
+#if(INDICEFONCTION == 0)
+   p = vec3((uv - 0.5) * bDim.xz * 2, 0);
+#elif(INDICEFONCTION == 1)
    // sphere
    float s = uv.x * 2.*PI;
    float t = uv.y * PI;
    p = vec3( sin(t)*cos(s),
              sin(t)*sin(s),
              cos(t) * facteurDeform );
-#elif ( INDICEFONCTION == 2 )
+#elif(INDICEFONCTION == 2)
    // tore
    float s = uv.x * 2.*PI;
    float t = uv.y * 2.*PI;
    p = vec3( ( 0.5*cos(s) + 1.0 )*cos(t),
              ( 0.5*cos(s) + 1.0 )*sin(t),
              0.5*sin(s) * facteurDeform );
-#elif ( INDICEFONCTION == 3 )
+#elif(INDICEFONCTION == 3)
    // pomme
    float s = uv.x * 2.*PI;
    float t = uv.y * 2.*PI - PI;
    p = 0.1 * vec3( cos(s) * (4 + 3.8 * cos(t)) * facteurDeform,
                    sin(s) * (4 + 3.8 * cos(t)) * facteurDeform,
                    (cos(t)+sin(t)-1)*(1+sin(t))*log(1-PI*t/10)+7.5*sin(t) );
-#elif ( INDICEFONCTION == 4 )
+#elif(INDICEFONCTION == 4)
    // coquille
    float s = -6. + ( 1.1*PI + 6. ) * uv.x;
    float t = uv.y * PI;
    p = pow(4./3.,s) * vec3( sin(t)*sin(t)*cos(s) * facteurDeform,
                             sin(t)*sin(t)*sin(s) * facteurDeform,
                             sin(t)*cos(t) );
-#elif ( INDICEFONCTION == 5 )
+#elif(INDICEFONCTION == 5)
    // serpent
    float s = uv.x;
    float t = uv.y * 2.*PI;
    p = vec3( (1.-s) * (2.+cos(t)) * cos(2*PI*s)/2.,
              (1.-s) * (2.+cos(t)) * sin(2*PI*s)/2.,
              2.*s + (1.-s) * sin(t)/2. * facteurDeform );
-#elif ( INDICEFONCTION == 6 )
+#elif(INDICEFONCTION == 6)
    // trefoil
    float s = uv.x * 2.*PI - PI;
    float t = uv.y * 2.*PI - PI;
@@ -157,12 +159,12 @@ void main(void) {
 		 upepsv = vec2(gl_TessCoord.x + eps, gl_TessCoord.y),
 		 uvneps = vec2(gl_TessCoord.x, gl_TessCoord.y - eps),
 		 unepsv = vec2(gl_TessCoord.x - eps, gl_TessCoord.y);
-	vec3 N = cross(FctParam(uvpeps) - FctParam(uvneps), FctParam(upepsv) - FctParam(unepsv));
+	vec3 N = cross(FctParam(upepsv) - FctParam(unepsv), FctParam(uvpeps) - FctParam(uvneps));
 
 #else
 
 	// déplacement selon la texture (partie 2)
-	// ....z = FctText( ... );
+	posModel.xyz = FctParam(gl_TessCoord.xy);
 
 	// calculer la normale
 	vec3 N = vec3(0.,0.,1.); // à modifier

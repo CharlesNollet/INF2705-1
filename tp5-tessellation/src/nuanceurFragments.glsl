@@ -59,7 +59,7 @@ void main( void )
       //if ( NdotL > 0.0 )
       {
          // ajouter la contribution de la composante diffuse
-#if ( INDICEDIFFUSE == 0 )
+#if(INDICEDIFFUSE == 0)
          // la composante diffuse (kd) du matériel est utilisé
          //coul += FrontMaterial.diffuse * LightSource.diffuse * ...;
 #else
