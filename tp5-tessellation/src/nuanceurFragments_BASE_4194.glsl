@@ -53,15 +53,15 @@ void main( void )
       // ajouter la contribution de la composante ambiante
       coul += FrontMaterial.ambient * LightSource.ambient;
 
-      float NdotL = dot(N, AttribsIn.lumiDir[i]);
+      //...
 
       // calcul de l'éclairage seulement si le produit scalaire est positif
-      if ( NdotL > 0.0 )
+      //if ( NdotL > 0.0 )
       {
          // ajouter la contribution de la composante diffuse
-#if(INDICEDIFFUSE == 0)
+#if ( INDICEDIFFUSE == 0 )
          // la composante diffuse (kd) du matériel est utilisé
-         coul += FrontMaterial.diffuse * LightSource.diffuse * NdotL;
+         //coul += FrontMaterial.diffuse * LightSource.diffuse * ...;
 #else
          // la composante diffuse (kd) provient de la texture 'textureCoul'
          //coul += ...
