@@ -37,7 +37,7 @@ out Attribs {
 
 void main()
 {
-	// émettre les sommets
+// émettre les sommets
 	for ( int i = 0 ; i < gl_in.length() ; ++i )
 	{
 		AttribsOut.texCoord = AttribsIn[i].texCoord;
@@ -60,8 +60,8 @@ void main()
 		{
 			AttribsOut.lumiDir[j] = vec3(1.0); // bidon
 			AttribsOut.lumiDir[j] = ( LightSource.position[j].w != 0.0 ) ?
-			                         (matrVisu * LightSource.position[j]).xyz / LightSource.position[j].w - posVisu.xyz  : // lumière positionnelle en (x/w,y/w,z/w)
-			                         (matrVisu * LightSource.position[j]).xyz ; // lumière directionnelle dans la direction (x,y,z)
+									(matrVisu * LightSource.position[j]).xyz / LightSource.position[j].w - posVisu.xyz  : // lumière positionnelle en (x/w,y/w,z/w)
+									(matrVisu * LightSource.position[j]).xyz ; // lumière directionnelle dans la direction (x,y,z)
 		}
 
 		// vecteur de la direction vers l'observateur
