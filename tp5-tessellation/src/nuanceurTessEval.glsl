@@ -74,12 +74,11 @@ vec4 interpole( vec4 v0, vec4 v1, vec4 v2, vec4 v3 )
 
 // affichage de la fonction paramétrique
 uniform vec4 bDim;
-vec3 FctParam( vec2 uv )
-{
+vec3 FctParam(vec2 uv) {
    const float PI = 3.141592654;
    vec3 p = vec3(0);
 #if(INDICEFONCTION == 0)
-   p = vec3((uv - 0.5) * bDim.xz * 2, 0);
+   p = vec3((uv - 0.5) * bDim.xy * 2, 0);
 #elif(INDICEFONCTION == 1)
    // sphere
    float s = uv.x * 2.*PI;
@@ -127,10 +126,9 @@ vec3 FctParam( vec2 uv )
 }
 
 // déplacement du plan selon la texture
-float FctText( vec2 texCoord )
-{
-   //...
-   return 0.0; // à modifier!
+float FctText(vec2 texCoord) {
+	vec4 texel = texture(textureDepl, texCoord);
+	return length(texel) * facteurDeform / 10.0;
 }
 
 void main(void) {
@@ -145,7 +143,7 @@ void main(void) {
 			);
 
 	// générer (en utilisant directement posModel.xy) les coordonnées de texture plutôt que les interpoler
-	//AttribsOut.texCoord = ...;
+	AttribsOut.texCoord = posModel.xy;
 
 #if(INDICEFONCTION != 0)
 
@@ -165,9 +163,21 @@ void main(void) {
 
 	// déplacement selon la texture (partie 2)
 	posModel.xyz = FctParam(gl_TessCoord.xy);
+	float deform = FctText(AttribsOut.texCoord);
+	posModel.z = deform;
 
 	// calculer la normale
-	vec3 N = vec3(0.,0.,1.); // à modifier
+	//vec3 N = vec3(0.,0.,1.); // à modifier
+	vec2 xypeps = vec2(gl_TessCoord.x, gl_TessCoord.y + eps),
+		 xpepsy = vec2(gl_TessCoord.x + eps, gl_TessCoord.y),
+		 xyneps = vec2(gl_TessCoord.x, gl_TessCoord.y - eps),
+		 xnepsy = vec2(gl_TessCoord.x - eps, gl_TessCoord.y);
+	vec3 N;
+	N.x = (FctText(xpepsy) - FctText(xnepsy)) / (2*eps);
+	N.y = (FctText(xypeps) - FctText(xyneps)) / (2*eps);
+	N.z = -1;
+
+	N = normalize(-N);
 
 #endif
 

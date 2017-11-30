@@ -38,8 +38,6 @@ in Attribs {
 
 out vec4 FragColor;
 
-bool utiliseBlinn = true;  // on utilise toujours Blinn
-
 void main( void )
 {
    vec4 coul = FrontMaterial.emission + FrontMaterial.ambient * LightModel.ambient;
@@ -53,7 +51,7 @@ void main( void )
       // ajouter la contribution de la composante ambiante
       coul += FrontMaterial.ambient * LightSource.ambient;
 
-      float NdotL = dot(N, AttribsIn.lumiDir[i]);
+      float NdotL = dot(N, normalize(AttribsIn.lumiDir[i]));
 
       // calcul de l'éclairage seulement si le produit scalaire est positif
       if ( NdotL > 0.0 )
@@ -64,14 +62,18 @@ void main( void )
          coul += FrontMaterial.diffuse * LightSource.diffuse * NdotL;
 #else
          // la composante diffuse (kd) provient de la texture 'textureCoul'
-         //coul += ...
+		 vec4 texel = texture(textureCoul, AttribsIn.texCoord);
+		 coul += texel * LightSource.diffuse * NdotL;
 #endif
 
          // ajouter la contribution de la composante spéculaire
          // produit scalaire pour la réflexion spéculaire (selon Blinn)
-         //...
-         //coul += FrontMaterial.specular * LightSource.specular * ...
-      }
+		 float reflectionFactor =
+			 max(0.0, dot(normalize(normalize(AttribsIn.lumiDir[i]) + normalize(AttribsIn.obsVec)), N));
+
+		 coul += FrontMaterial.specular * LightSource.specular *
+			 pow(reflectionFactor, FrontMaterial.shininess);
+	  }
    }
 
    // assigner la couleur finale
@@ -80,5 +82,6 @@ void main( void )
 #if ( AFFICHENORMALES == 1 )
    // pour le débogage
    FragColor = vec4((0.5 + 0.5 * N),1.0);
+   //FragColor = vec4(AttribsIn.texCoord, 0, 0);
 #endif
 }
