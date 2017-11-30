@@ -143,7 +143,7 @@ void main(void) {
 			);
 
 	// générer (en utilisant directement posModel.xy) les coordonnées de texture plutôt que les interpoler
-	AttribsOut.texCoord = posModel.xy;
+	AttribsOut.texCoord = (posModel.xy - vec2(0.5, 0.5)) * bDim.xy;
 
 #if(INDICEFONCTION != 0)
 
@@ -168,10 +168,10 @@ void main(void) {
 
 	// calculer la normale
 	//vec3 N = vec3(0.,0.,1.); // à modifier
-	vec2 xypeps = vec2(gl_TessCoord.x, gl_TessCoord.y + eps),
-		 xpepsy = vec2(gl_TessCoord.x + eps, gl_TessCoord.y),
-		 xyneps = vec2(gl_TessCoord.x, gl_TessCoord.y - eps),
-		 xnepsy = vec2(gl_TessCoord.x - eps, gl_TessCoord.y);
+	vec2 xypeps = vec2(AttribsOut.texCoord.x, AttribsOut.texCoord.y + eps),
+		 xpepsy = vec2(AttribsOut.texCoord.x + eps, AttribsOut.texCoord.y),
+		 xyneps = vec2(AttribsOut.texCoord.x, AttribsOut.texCoord.y - eps),
+		 xnepsy = vec2(AttribsOut.texCoord.x - eps, AttribsOut.texCoord.y);
 	vec3 N;
 	N.x = (FctText(xpepsy) - FctText(xnepsy)) / (2*eps);
 	N.y = (FctText(xypeps) - FctText(xyneps)) / (2*eps);
